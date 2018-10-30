@@ -4,6 +4,7 @@
 # ==================================================
 
  use App\Models\Login;
+ use App\Models\Veterinario;
 
     $app->get('/login/', function($request, $response) {
         return $response->getBody()->write(Login::all()->toJson());
@@ -22,8 +23,26 @@
         $login->tipo = $data['tipo'];
         $login->email = $data['email'];
         $login->senha = $data['senha'];
+        $login->nome = $data['nome'];
+        $login->celphone = $data['celphone'];
         
         $login->save();
+        
+        if ($login->tipo == 'V'){
+            $vet = new Veterinario();
+            $vet->crmv = $data['crmv'];
+            $vet->id_login =  $login->id;
+            $vet->save();
+        }
+        
+        
+        return $response->withStatus(201)->getBody()->write($login->toJson());
+    });
+    
+    $app->post('/login/verificalogin/', function($request, $response, $args) {
+        $data = $request->getParsedBody();
+        $login = Login::where('email', '=', $data['email'])->where('senha', '=', $data['senha'])->get();;
+        
         
         return $response->withStatus(201)->getBody()->write($login->toJson());
     });
@@ -48,5 +67,9 @@
         
         return $response->getBody()->write($login->toJson());
     });
+    
+    //Veterinario
+    
+    
                     
     $app->run();

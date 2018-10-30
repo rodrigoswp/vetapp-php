@@ -764,9 +764,18 @@ trait HasAttributes
         // Finally, we will just assume this date is in the format used by default on
         // the database connection and use that format to create the Carbon object
         // that is returned back out to the developers after we convert it here.
-        return Carbon::createFromFormat(
-            str_replace('.v', '.u', $this->getDateFormat()), $value
-        );
+//         return Carbon::createFromFormat(
+//             str_replace('.v', '.u', $this->getDateFormat()), $value
+//         );
+        
+        // If the value contains some TZ information, we try to properly parse it
+        $dateFormat = $this->getDateFormat();
+        if (!ends_with($dateFormat, 'T') && preg_match('/\+\d{2}:?\d{0,2}$/', $value)) {
+                $dateFormat .= 'T';
+        }
+        
+        return Carbon::createFromFormat('Y-m-d H:i:s', $value);
+        
     }
 
     /**
